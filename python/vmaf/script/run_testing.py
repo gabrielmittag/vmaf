@@ -8,6 +8,7 @@ import sys
 import re
 
 import numpy as np
+import pandas as pd
 from vmaf.config import DisplayConfig
 
 from vmaf.core.result_store import FileSystemResultStore
@@ -170,6 +171,16 @@ def main():
                                               enable_transform_score=enable_transform_score,
                                               processes=processes,
                                               )
+        os.makedirs(save_plot_dir, exist_ok=True)
+        df = []
+        for result in results:
+            df.append({
+                'video': os.path.basename(result.asset.dis_path),
+                quality_type: result[f"{quality_type}_score"],
+                'mos': result.asset.groundtruth,
+                })
+        df = pd.DataFrame(df)
+        df.to_csv(os.path.join(save_plot_dir, "vmaf_results.csv"), index=False)
 
         bbox = {'facecolor':'white', 'alpha':0.5, 'pad':20}
         ax.annotate('Testing Set', xy=(0.1, 0.85), xycoords='axes fraction', bbox=bbox)
